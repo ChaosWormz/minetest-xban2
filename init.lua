@@ -5,7 +5,7 @@ dofile(xban.MP.."/serialize.lua")
 
 local db = { }
 local tempbans = { }
-
+local owner = minetest.setting_get("name") or "Admin"
 local DEF_SAVE_INTERVAL = 300 -- 5 minutes
 local DEF_DB_FILENAME = minetest.get_worldpath().."/xban.db"
 
@@ -195,6 +195,10 @@ minetest.register_chatcommand("xban", {
 		if not (plname and reason) then
 			return false, "Usage: /xban <player> <reason>"
 		end
+		if plname == owner then
+			return false, "You cannot can that player."
+		end
+		
 		xban.ban_player(plname, name, nil, reason)
 		return true, ("Banned %s."):format(plname)
 	end,
@@ -213,6 +217,10 @@ minetest.register_chatcommand("xtempban", {
 		if time < 60 then
 			return false, "You must ban for at least 60 seconds."
 		end
+		if plname == owner then
+			return false, "You cannot can that player."
+		end
+		
 		local expires = os.time() + time
 		xban.ban_player(plname, name, expires, reason)
 		return true, ("Banned %s until %s."):format(plname, os.date("%c", expires))
@@ -323,3 +331,4 @@ xban.db = db
 
 dofile(xban.MP.."/dbimport.lua")
 dofile(xban.MP.."/gui.lua")
+dofile(xban.MP.."/coreban.lua")
